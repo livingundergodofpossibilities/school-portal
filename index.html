@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUGOP Visionary RMS | School Report Portal (Malawi)</title>
+  <meta name="description" content="Search your school to view student report cards through LUGOP Visionary RMS." />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f2f5f9; color: #1a202c; }
+    .top-bar { background: #0b2e59; color: #fff; padding: 16px 20px; text-align: center; }
+    .top-bar h1 { margin: 0; font-size: 20px; }
+    .top-bar p { margin: 6px 0 0; font-size: 13px; opacity: 0.9; }
+    .container { max-width: 960px; margin: 20px auto; padding: 0 15px; }
+    .search-box { width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; margin-bottom: 16px; }
+    .school-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .school-btn { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; text-align: left; cursor: pointer; font-size: 14px; font-weight: bold; color: #0b2e59; }
+    .school-btn:hover { background: #e6eef8; border-color: #0b2e59; }
+    .viewer-box { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; display: none; }
+    .viewer-header { background: #0b2e59; color: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { background: #fff; color: #0b2e59; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    iframe { width: 100%; height: 78vh; border: none; display: block; }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <h1>OFFICIAL SCHOOL REPORT PORTAL — MALAWI</h1>
+    <p>LUGOP Visionary RMS • Report Verification Engine</p>
+  </header>
+
+  <main class="container" id="directoryView">
+    <input type="text" id="schoolSearch" class="search-box" placeholder="Type school name (e.g., Thunga CDSS, Milonde CDSS)..." onkeyup="filterSchools()" />
+    <div class="school-grid" id="schoolList"></div>
+  </main>
+
+  <section class="viewer-box" id="portalView">
+    <div class="viewer-header">
+      <span id="activeSchoolTitle">Report Portal</span>
+      <button class="back-btn" onclick="showDirectory()">Change School</button>
+    </div>
+    <iframe id="portalIframe" src="" allow="geolocation; microphone; camera"></iframe>
+  </section>
+
+  <script>
+    // Add or update your 20+ schools here
+    const schools = [
+      "Thunga CDSS",
+      "Milonde CDSS",
+      "Milumbe CDSS",
+      "Naluso Primary School",
+      "Luchenza Secondary School",
+      "Thyolo Secondary School",
+      "Bvumbwe CDSS",
+      "Mikolongwe CDSS",
+      "Chigumula Secondary School",
+      "Lunzu Secondary School",
+      "Bangwe CDSS",
+      "Ndirande Hill Secondary School",
+      "Chichiri Secondary School",
+      "Mulanje Mission CDSS",
+      "Likhubula CDSS",
+      "Chiradzulu Secondary School",
+      "Nguludi Secondary School",
+      "Zomba Catholic Secondary School",
+      "Domasi Demonstration School",
+      "Balaka Secondary School"
+    ];
+
+    const reportBaseUrl = "https://livingundergodofpossibilities.github.io/report-view/report.html";
+
+    function renderSchools(list) {
+      const container = document.getElementById("schoolList");
+      container.innerHTML = "";
+      list.forEach(school => {
+        const btn = document.createElement("button");
+        btn.className = "school-btn";
+        btn.textContent = school;
+        btn.onclick = () => openSchool(school);
+        container.appendChild(btn);
+      });
+    }
+
+    function filterSchools() {
+      const query = document.getElementById("schoolSearch").value.toLowerCase().trim();
+      const filtered = schools.filter(s => s.toLowerCase().includes(query));
+      renderSchools(filtered);
+    }
+
+    function openSchool(schoolName) {
+      document.getElementById("directoryView").style.display = "none";
+      document.getElementById("portalView").style.display = "block";
+      document.getElementById("activeSchoolTitle").textContent = schoolName + " — Report Verification";
+      document.getElementById("portalIframe").src = reportBaseUrl + "?school=" + encodeURIComponent(schoolName.toLowerCase());
+    }
+
+    function showDirectory() {
+      document.getElementById("portalView").style.display = "none";
+      document.getElementById("directoryView").style.display = "block";
+      document.getElementById("portalIframe").src = "";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const paramSchool = params.get("school");
+    renderSchools(schools);
+    if (paramSchool) {
+      openSchool(paramSchool);
+    }
+  </script>
+</body>
+</html>
