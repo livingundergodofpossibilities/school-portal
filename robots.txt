@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lugopvisionaryrms.github.io/lugop-portal/sitemap.xml
+Sitemap: https://livingundergodofpossibilities.github.io/school-portal/sitemap.xml
