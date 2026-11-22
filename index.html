@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="google-site-verification" content="wfVX5pOZr0VD49zWBBZ_RhUDtolWIKm3-0_6EdVdWPw" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUGOP Visionary RMS | School Report Portal (Malawi)</title>
-  <meta name="description" content="Search your school to view student report cards through LUGOP Visionary RMS." />
+  <title>LUGOP Visionary RMS | Official School Report Portal (Malawi)</title>
+  <meta name="description" content="Official student report card verification portal for schools in Malawi powered by LUGOP Visionary RMS. Search Thunga CDSS, Milonde CDSS, and partner schools." />
   <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #f2f5f9; color: #1a202c; }
     .top-bar { background: #0b2e59; color: #fff; padding: 16px 20px; text-align: center; }
@@ -16,10 +15,40 @@
     .school-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
     .school-btn { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; text-align: left; cursor: pointer; font-size: 14px; font-weight: bold; color: #0b2e59; }
     .school-btn:hover { background: #e6eef8; border-color: #0b2e59; }
-    .viewer-box { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; display: none; }
-    .viewer-header { background: #0b2e59; color: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .back-btn { background: #fff; color: #0b2e59; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    iframe { width: 100%; height: 78vh; border: none; display: block; }
+    .viewer-box { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; display: none; position: relative; }
+    .viewer-header { background: #0b2e59; color: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .back-btn { background: #fff; color: #0b2e59; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+    .frame-wrap { position: relative; width: 100%; height: 78vh; background: #ffffff; }
+    iframe { width: 100%; height: 100%; border: none; display: block; }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.96);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 10;
+    }
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #dbeafe;
+      border-top: 4px solid #0b2e59;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 12px;
+    }
+    .loading-title { font-size: 15px; font-weight: bold; color: #0b2e59; margin-bottom: 4px; }
+    .loading-sub { font-size: 12px; color: #475569; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -38,11 +67,17 @@
       <span id="activeSchoolTitle">Report Portal</span>
       <button class="back-btn" onclick="showDirectory()">Change School</button>
     </div>
-    <iframe id="portalIframe" src="" allow="geolocation; microphone; camera"></iframe>
+    <div class="frame-wrap">
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-title" id="loadingText">Loading Report Portal...</div>
+        <div class="loading-sub">Connecting to LUGOP Visionary RMS. Please wait...</div>
+      </div>
+      <iframe id="portalIframe" src="" allow="geolocation; microphone; camera"></iframe>
+    </div>
   </section>
 
   <script>
-    // Add or update your 20+ schools here
     const schools = [
       "Thunga CDSS",
       "Milonde CDSS",
@@ -67,6 +102,29 @@
     ];
 
     const reportBaseUrl = "https://livingundergodofpossibilities.github.io/report-view/report.html";
+    const iframeEl = document.getElementById("portalIframe");
+    const overlayEl = document.getElementById("loadingOverlay");
+    const loadingTextEl = document.getElementById("loadingText");
+
+    function formatSchoolName(rawName) {
+      if (!rawName) return "School";
+      const cleaned = decodeURIComponent(rawName).replace(/[-_]+/g, " ").trim();
+      return cleaned
+        .split(/\s+/)
+        .map(word => {
+          const lower = word.toLowerCase();
+          if (lower === "cdss") return "CDSS";
+          if (lower === "rms") return "RMS";
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(" ");
+    }
+
+    iframeEl.addEventListener("load", function () {
+      if (iframeEl.src && iframeEl.src !== window.location.href) {
+        overlayEl.style.display = "none";
+      }
+    });
 
     function renderSchools(list) {
       const container = document.getElementById("schoolList");
@@ -86,17 +144,21 @@
       renderSchools(filtered);
     }
 
-    function openSchool(schoolName) {
+    function openSchool(rawSchoolName) {
+      const formattedName = formatSchoolName(rawSchoolName);
       document.getElementById("directoryView").style.display = "none";
       document.getElementById("portalView").style.display = "block";
-      document.getElementById("activeSchoolTitle").textContent = schoolName + " — Report Verification";
-      document.getElementById("portalIframe").src = reportBaseUrl + "?school=" + encodeURIComponent(schoolName.toLowerCase());
+      document.getElementById("activeSchoolTitle").textContent = formattedName + " — Report Verification";
+      loadingTextEl.textContent = "Loading " + formattedName + " Portal...";
+      overlayEl.style.display = "flex";
+      iframeEl.src = reportBaseUrl + "?school=" + encodeURIComponent(formattedName.toLowerCase());
     }
 
     function showDirectory() {
+      overlayEl.style.display = "none";
       document.getElementById("portalView").style.display = "none";
       document.getElementById("directoryView").style.display = "block";
-      document.getElementById("portalIframe").src = "";
+      iframeEl.src = "";
     }
 
     const params = new URLSearchParams(window.location.search);
