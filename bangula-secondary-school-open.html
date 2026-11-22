@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bangula Secondary School Open Student Report Portal | LUGOP Visionary RMS</title>
+  <meta name="description" content="Official student report card verification portal for Bangula Secondary School Open powered by LUGOP Visionary RMS." />
+  <link rel="canonical" href="https://livingundergodofpossibilities.github.io/school-portal/bangula-secondary-school-open.html" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f2f5f9; color: #1a202c; }
+    .top-bar { background: #0b2e59; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .top-bar h1 { margin: 0; font-size: 17px; }
+    .top-bar p { margin: 4px 0 0; font-size: 12px; opacity: 0.9; }
+    .home-link { background: #fff; color: #0b2e59; text-decoration: none; padding: 7px 11px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+    .frame-wrap { position: relative; width: 100%; height: calc(100vh - 64px); background: #fff; }
+    iframe { width: 100%; height: 100%; border: none; display: block; }
+    .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; }
+    .spinner { width: 42px; height: 42px; border: 4px solid #dbeafe; border-top: 4px solid #0b2e59; border-radius: 50%; animation: spin 0.9s linear infinite; margin-bottom: 12px; }
+    .loading-title { font-size: 15px; font-weight: bold; color: #0b2e59; margin-bottom: 4px; }
+    .loading-sub { font-size: 12px; color: #475569; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div>
+      <h1>Bangula Secondary School Open — Official Report Portal</h1>
+      <p>LUGOP Visionary RMS • Report Verification Engine</p>
+    </div>
+    <a class="home-link" href="https://livingundergodofpossibilities.github.io/school-portal/">All Schools</a>
+  </header>
+  <div class="frame-wrap">
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-title">Loading Bangula Secondary School Open Portal...</div>
+      <div class="loading-sub">Connecting to LUGOP Visionary RMS. Please wait...</div>
+    </div>
+    <iframe id="reportFrame" src="https://livingundergodofpossibilities.github.io/report-view/report.html?school=bangula%20secondary%20school%20open" allow="geolocation; microphone; camera"></iframe>
+  </div>
+  <script>
+    document.getElementById("reportFrame").addEventListener("load", function () {
+      document.getElementById("loadingOverlay").style.display = "none";
+    });
+  </script>
+</body>
+</html>
