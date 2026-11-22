@@ -94,6 +94,12 @@
       "Bangula Secondary School Open"
     ];
 
+    // Custom backend school query overrides (Display Name -> report.html ?school= value)
+    const customSchoolQueries = {
+      "impact private secondary school": "impact pvt",
+      "impact pvt": "impact pvt"
+    };
+
     const reportBaseUrl = "https://livingundergodofpossibilities.github.io/report-view/report.html";
     const iframeEl = document.getElementById("portalIframe");
     const overlayEl = document.getElementById("loadingOverlay");
@@ -102,15 +108,32 @@
     function formatSchoolName(rawName) {
       if (!rawName) return "School";
       const cleaned = decodeURIComponent(rawName).replace(/[-_]+/g, " ").trim();
+      if (cleaned.toLowerCase() === "impact pvt") {
+        return "Impact Private Secondary School";
+      }
       return cleaned
         .split(/\s+/)
         .map(word => {
           const lower = word.toLowerCase();
           if (lower === "cdss") return "CDSS";
           if (lower === "rms") return "RMS";
+          if (lower === "pvt") return "Pvt";
           return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
         })
         .join(" ");
+    }
+
+    function toBackendQuery(formattedName) {
+      const lower = formattedName.toLowerCase().trim();
+      if (customSchoolQueries[lower]) {
+        return customSchoolQueries[lower];
+      }
+      // Automatically convert "... Private Secondary School" or "... Private School" to "... pvt"
+      return lower
+        .replace(/\bprivate secondary school\b/g, "pvt")
+        .replace(/\bprivate school\b/g, "pvt")
+        .replace(/\bprivate\b/g, "pvt")
+        .trim();
     }
 
     iframeEl.addEventListener("load", function () {
@@ -139,12 +162,13 @@
 
     function openSchool(rawSchoolName) {
       const formattedName = formatSchoolName(rawSchoolName);
+      const backendSchoolParam = toBackendQuery(formattedName);
       document.getElementById("directoryView").style.display = "none";
       document.getElementById("portalView").style.display = "block";
       document.getElementById("activeSchoolTitle").textContent = formattedName + " — Report Verification";
       loadingTextEl.textContent = "Loading " + formattedName + " Portal...";
       overlayEl.style.display = "flex";
-      iframeEl.src = reportBaseUrl + "?school=" + encodeURIComponent(formattedName.toLowerCase());
+      iframeEl.src = reportBaseUrl + "?school=" + encodeURIComponent(backendSchoolParam);
     }
 
     function showDirectory() {
